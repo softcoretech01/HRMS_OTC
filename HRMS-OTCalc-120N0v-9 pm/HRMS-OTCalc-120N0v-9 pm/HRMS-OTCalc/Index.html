@@ -127,9 +127,9 @@
 
         <!-- IMPORTANT: use data-url so JS can load the page into iframe -->
       
-        <a href="#" data-url="Employee.html" class="menu-emp">Employee</a>
- <a href="" data-url="Attend.html" class="menu-att">Attendance</a>
-        <a href="#" data-url="ot.html" class="menu-config">Overtime</a>
+        <a href="#" data-url="employee.html" class="menu-emp">Employee</a>
+ <a href="" data-url="attend.html" class="menu-att">Attendance</a>
+        <a href="#" data-url="OT.html" class="menu-config">Overtime</a>
  <a href="#" data-url="approval.html" class="menu-approval">Approval</a>
       
       </nav>
@@ -174,7 +174,7 @@
     });
 
     // load dashboard by default (if file exists)
-    const defaultLink = document.querySelector('.sidebar a[data-url="dashboard.html"]') || links[0];
+    const defaultLink = document.querySelector('.sidebar a[data-url="Dashboard.html"]') || links[0];
     if (defaultLink) {
       defaultLink.click();
     }

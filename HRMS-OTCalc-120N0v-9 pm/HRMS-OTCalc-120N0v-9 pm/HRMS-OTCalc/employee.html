@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" />
+  <title>BTG HRMS - Employee Master</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --btg-blue: #004C80;
+      --btg-teal: #1abc9c;
+      --btg-teal-dark: #16a085;
+      --card-violet: #9b59b6;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 230px;
+      background: var(--btg-blue);
+      color: #fff;
+      padding-top: 18px;
+      overflow-y: auto;
+    }
+    .sidebar .sidebar-header {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.5rem;
+      margin-bottom:18px;
+    }
+    .sidebar .sidebar-header img{ height:42px; }
+    .sidebar h5{ margin:0; font-weight:600; font-size:1.05rem; }
+
+    .sidebar a{
+      display:block;
+      color:#fff;
+      padding:10px 14px;
+      margin:6px 10px;
+      border-radius:8px;
+      text-decoration:none;
+      font-weight:500;
+    }
+    .sidebar a:hover{ opacity:.95; transform:scale(1.01); }
+    .sidebar .menu-emp{ background: var(--btg-teal); }
+    .sidebar .menu-att{ background:#e67e22; }
+    .sidebar .menu-config{ background:#3498db; }
+
+    /* Main content */
+    .main {
+      
+      padding: 12px;
+    }
+
+    .header-bar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      margin-bottom:8px;
+    }
+    .header-bar h3{ color:#007BFF; margin:0; font-weight:700; }
+
+    /* Card & table styles */
+    .card {
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+      border:none;
+      margin-bottom:18px;
+    }
+    .card .card-header {
+      background: var(--btg-teal);
+      color:#fff;
+      font-weight:600;
+      letter-spacing:0.3px;
+      border-top-left-radius:12px;
+      border-top-right-radius:12px;
+      padding:12px 18px;
+    }
+    .card .card-body { padding:18px; background:#fff; }
+
+    .table thead th {
+      background: #e9fffb;
+      vertical-align: middle;
+      font-weight:600;
+    }
+    .table tbody td { vertical-align: middle; }
+
+    /* Column sizing */
+    th.col-id { width:110px; }
+    th.col-name { width:200px; }
+    th.col-design { width:200px; }
+    th.col-sal { width:140px; }
+    th.col-dept { width:140px; }
+    th.col-hod { width:160px; }
+    th.col-sup { width:160px; }
+    th.col-action { width:120px; }
+
+    /* Action buttons */
+    .action-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 6px 8px;
+      margin: 0 2px;
+      border-radius:6px;
+    }
+    .action-btn.edit{ color: #007bff; }
+    .action-btn.toggle.active{ color: #fff; background: #28a745; padding:6px 8px; }
+    .action-btn.toggle.inactive{ color:#333; background:#e9ecef; padding:6px 8px; }
+
+    /* Net alignment: text left, numbers right */
+    .text-num { text-align: right; }
+
+    /* Bigger modal */
+    .modal-lg.custom {
+      max-width: 90%;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .main { margin-left: 0; padding:12px; }
+      .sidebar { position:relative; width:100%; height:auto; display:flex; gap:8px; padding:12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+
+
+  <!-- Main content -->
+  <main class="main">
+
+    
+    <div class="header-bar">
+      <div><h3>Employee Master</h3></div> 
+
+      <button class="btn btn-success" onclick="exportEmployees()"style="background:var(--btg-teal); color:#fff; border-radius:8px; padding:.45rem .9rem;">
+  ⬇ Export Excel
+</button>
+
+
+      <div>
+        <button id="btnAdd" class="btn" style="background:var(--btg-teal); color:#fff; border-radius:8px; padding:.45rem .9rem;" data-bs-toggle="modal" data-bs-target="#employeeModal">
+          + Add New Employee
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Employee List Card (updated, wider, aligned) -->
+    <div class="card">
+      <div class="card-header">Employee Listing</div>
+      <div class="card-body">
+        <div class="table-responsive" style="max-height:560px; overflow:auto;">
+          <table class="table table-hover table-bordered align-middle mb-0" style="min-width:1200px;">
+            <thead class="text-center">
+              <tr>
+                <th class="col-id text-start">Emp ID</th>
+                <th class="col-name text-start">Name</th>
+                <th class="col-design text-start">Designation</th>
+                <th class="col-sal text-num">Salary (IDR)</th>
+                <th class="col-dept text-start">Department</th>
+                <th class="col-hod text-start">HOD</th>
+                <th class="col-sup text-start">Supervisor</th>
+                <th class="col-action text-center">Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="empTbody">
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer style="margin-top:14px; color:#666;">&copy; 2025 BTG HRMS | Techspire Solutions</footer>
+  </main>
+
+  <!-- LARGE Employee Modal (modal-only form) -->
+  <div class="modal fade" id="employeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background:var(--btg-teal); color:#fff;">
+          <h5 class="modal-title">Add / Edit Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="empForm">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Employee ID</label>
+                <input id="empId" type="text" class="form-control" placeholder="Auto-generated" disabled>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Employee Name</label>
+                <input id="empName" type="text" class="form-control" placeholder="Enter employee name" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Designation</label>
+                <input id="empDesig" type="text" class="form-control" placeholder="Enter designation" required>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Salary</label>
+                <input id="empSalary" type="number" class="form-control" placeholder="Enter salary" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Department</label>
+                <input id="empDept" type="text" class="form-control" placeholder="Enter department" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">HOD</label>
+                 <select id="empHod" class="form-select">
+               <option value="" selected disabled>Loading HODs...</option>
+               <td class="text-start" data-hod-id="${emp.hod || ''}">${emp.hod_name || '-'}</td>
+               </select>
+             </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Supervisor</label>
+                <select id="empSup" class="form-select">
+                 <option value="" selected disabled>Select Supervisor</option>
+                 <td class="text-start" data-sup-id="${emp.supervisor || ''}">${emp.supervisor_name || '-'}</td>
+              </select>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn" style="background:var(--btg-teal); color:#fff;">Save</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+
+
+
+    const apiBase = "http://127.0.0.1:8000/api/employees";
+
+
+// Fetch employees from backend
+async function loadEmployees() {
+  try {
+    const res = await fetch(apiBase);
+    if (!res.ok) throw new Error("Failed to fetch employees");
+
+    const employees = await res.json();
+    const tbody = document.getElementById('empTbody');
+    tbody.innerHTML = ''; // clear existing
+
+    employees.forEach(emp => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-start">${emp.id}</td>
+        <td class="text-start">${emp.name}</td>
+        <td class="text-start">${emp.designation}</td>
+        <td class="text-num">${Number(emp.salary).toLocaleString()}</td>
+        <td class="text-start">${emp.department}</td>
+        <td class="text-start">${emp.hod || '-'}</td>
+        <td class="text-start">${emp.supervisor || '-'}</td>
+        <td class="text-center">
+          <button class="action-btn edit" title="Edit" data-id="${emp.id}">✏️</button>
+           <button class="action-btn delete" title="Delete" data-id="${emp.id}">🗑️</button>
+          <button class="action-btn toggle ${emp.status === 'active' ? 'active' : 'inactive'}"
+        data-id="${emp.id}">
+  ${emp.status === 'active' ? 'Active' : 'Inactive'}
+</button>
+
+
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch(err) {
+    console.error(err);
+    alert('Failed to load employees.');
+  }
+}
+
+// Load employees on page load
+window.addEventListener('DOMContentLoaded', () => {
+  loadEmployees();
+  loadHods();
+  loadSupervisors();
+});
+
+
+
+document.getElementById('empForm').addEventListener('submit', async function(ev){
+  ev.preventDefault();
+
+  const empData = {
+    name: document.getElementById('empName').value,
+    designation: document.getElementById('empDesig').value,
+    salary: Number(document.getElementById('empSalary').value),
+    department: document.getElementById('empDept').value,
+    hod: document.getElementById('empHod').value || null,
+    supervisor: document.getElementById('empSup').value || null,
+    active: true // default active
+    
+   
+  };
+
+  const empId = document.getElementById('empId').value;
+  try {
+    if(empId){ // edit
+      await fetch(`${apiBase}/${empId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(empData)
+      });
+    } else { // add new
+      await fetch(apiBase, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(empData)
+      });
+    }
+
+    // close modal
+    const modalEl = document.getElementById('employeeModal');
+    bootstrap.Modal.getInstance(modalEl).hide();
+
+    // reload table
+    loadEmployees();
+  } catch(err){
+    console.error(err);
+    alert('Failed to save employee.');
+  }
+});
+
+
+document.addEventListener('click', async function(e){
+  const btn = e.target.closest('.action-btn.toggle');
+  if (!btn) return;
+
+  const empId = btn.dataset.id;
+  const currentStatus = btn.classList.contains('active') ? 'active' : 'inactive';
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+  try {
+    const res = await fetch(`${apiBase}/${empId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    if (!res.ok) throw new Error('Status update failed');
+
+    // update UI ONLY after success
+    btn.classList.toggle('active', newStatus === 'active');
+    btn.classList.toggle('inactive', newStatus === 'inactive');
+    btn.textContent = newStatus === 'active' ? 'Active' : 'Inactive';
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to update employee status');
+  }
+});
+
+
+
+document.addEventListener('click', async function (e) {
+  if (e.target.closest('.action-btn.delete')) {
+    const btn = e.target.closest('.action-btn.delete');
+    const empId = btn.dataset.id;
+
+    // confirmation
+    if (!confirm("Are you sure you want to delete this employee?")) return;
+
+    try {
+      const res = await fetch(`${apiBase}/${empId}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) throw new Error('Delete failed');
+
+      // reload table after delete
+      loadEmployees();
+
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete employee.');
+    }
+  }
+});
+
+
+   function exportEmployees() {
+  fetch(`${apiBase}/export-excel`)
+    .then(res => {
+      if (!res.ok) throw new Error("Export failed");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "employee_data.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to export Excel");
+    });
+}
+
+async function loadHODs() {
+  const hodSelect = document.getElementById("empHod");
+  hodSelect.innerHTML = '<option value="" disabled>Loading HODs...</option>';
+
+  try {
+    const res = await fetch("http://localhost:8000/api/employees/hods");
+    if (!res.ok) throw new Error("Failed to fetch HODs");
+
+    const hods = await res.json();
+    hodSelect.innerHTML = '<option value="" selected disabled>Select HOD</option>';
+
+    hods.forEach(hod => {
+      const option = document.createElement("option");
+      option.value = hod.name;
+      option.textContent = hod.name;
+      hodSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error(err);
+    hodSelect.innerHTML = '<option value="" disabled>Error loading HODs</option>';
+  }
+}
+
+async function loadSupervisors() {
+  const supSelect = document.getElementById("empSup");
+  supSelect.innerHTML = '<option value="" disabled>Loading Supervisors...</option>';
+
+  try {
+    const res = await fetch("http://localhost:8000/api/employees/supervisors");
+    if (!res.ok) throw new Error("Failed to fetch Supervisors");
+
+    const supervisors = await res.json();
+    supSelect.innerHTML = '<option value="" selected disabled>Select Supervisor</option>';
+
+    supervisors.forEach(sup => {
+      const option = document.createElement("option");
+      option.value = sup.name;
+      option.textContent = sup.name;
+      supSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error(err);
+    supSelect.innerHTML = '<option value="" disabled>Error loading Supervisors</option>';
+  }
+}
+
+// Call these on page load
+loadHODs();
+loadSupervisors();
+
+
+    // small JS for edit modal pre-fill and toggle active/inactive (frontend-only)
+    document.addEventListener('click', function(e){
+      // Edit button clicked
+      if (e.target.closest('.action-btn.edit')) {
+        const btn = e.target.closest('.action-btn.edit');
+        const tr = btn.closest('tr');
+        // populate modal fields from row cells
+        const id = tr.children[0].textContent.trim();
+        const name = tr.children[1].textContent.trim();
+        const desig = tr.children[2].textContent.trim();
+        const salary = tr.children[3].textContent.trim().replace(/,/g,'');
+        const dept = tr.children[4].textContent.trim();
+        const hod = tr.children[5].textContent.trim();
+        const sup = tr.children[6].textContent.trim();
+
+        document.getElementById('empId').value = id;
+        document.getElementById('empName').value = name;
+        document.getElementById('empDesig').value = desig;
+        document.getElementById('empSalary').value = salary || '';
+        document.getElementById('empDept').value = dept || '';
+        // set selects
+        Array.from(document.getElementById('empHod').options).forEach(o => o.selected = (o.text === hod));
+        Array.from(document.getElementById('empSup').options).forEach(o => o.selected = (o.text === sup));
+        // open modal (if not already)
+        const modalEl = document.getElementById('employeeModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      }
+
+      
+    });
+
+    // Handle add new: clear modal fields when +Add clicked
+    document.getElementById('btnAdd').addEventListener('click', () => {
+      document.getElementById('empId').value = ''; // would be auto-generated in real app
+      document.getElementById('empName').value = '';
+      document.getElementById('empDesig').value = '';
+      document.getElementById('empSalary').value = '';
+      document.getElementById('empDept').value = '';
+      document.getElementById('empHod').selectedIndex = 0;
+      document.getElementById('empSup').selectedIndex = 0;
+    });
+
+    
+  
+  </script>
+</body>
+</html>

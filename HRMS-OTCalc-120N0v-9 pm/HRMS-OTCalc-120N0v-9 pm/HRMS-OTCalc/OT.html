@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTG HRMS - OT Configuration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .header-bar h3 {
+      color: #007b83;
+      font-weight: bold;
+    }
+
+    .btn-teal {
+      background-color: #009688;
+      color: white;
+      font-weight: 500;
+      border-radius: 6px;
+    }
+    .btn-teal:hover {
+      background-color: #00796b;
+      color: #fff;
+    }
+
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border: none;
+    }
+
+    .card-header {
+      background-color: #3498db;
+      color: white;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .table thead {
+      background-color: #f0f0f0;
+      font-weight: 600;
+    }
+
+    th.text-start, td.text-start { text-align: left !important; }
+    th.text-end, td.text-end { text-align: right !important; }
+
+    .action-icons i {
+      margin: 0 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease-in-out;
+    }
+    .action-icons i:hover {
+      transform: scale(1.2);
+    }
+    .fa-paper-plane { color: #1abc9c; }
+    .fa-comments { color: #e67e22; }
+
+    .net-link {
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .modal-header.bg-teal {
+      background-color: #009688;
+      color: white;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #e9ecef;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-content">
+    <div class="header-bar">
+      <h3>Overtime Configuration & Calculation</h3>
+      <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#otRuleModal">
+        <i class="fa-solid fa-circle-info me-1"></i> OT Calculation Details
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Employee Overtime (in IDR)</div>
+      <div class="card-body">
+        <div class="row mb-3 align-items-end">
+  <div class="col-md-4">
+    <label class="form-label fw-semibold">Select Month</label>
+    <div class="input-group">
+      <span class="input-group-text">
+        <i class="fa-solid fa-calendar-days"></i>
+      </span>
+      <input
+        type="month"
+        id="periodMonth"
+        class="form-control"
+      />
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <button class="btn btn-teal w-100" onclick="loadOT()">
+      <i class="fa-solid fa-magnifying-glass me-1"></i>
+      Search
+    </button>
+  </div>
+</div>
+
+
+        <table class="table table-bordered align-middle">
+          <thead class="text-center">
+            <tr>
+              <th class="text-start">Emp ID</th>
+              <th class="text-start">Name</th>
+              <th class="text-start">Designation</th>
+              <th class="text-end">Base Salary</th>
+              <th class="text-end">OT Hours</th>
+              <th class="text-end">OT Salary</th>
+              <th class="text-end">Net Salary</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="otTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>© 2025 BTG HRMS | Techspire Solutions</footer>
+  </div>
+
+  <!-- OT Rule Modal -->
+  <div class="modal fade" id="otRuleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-teal">
+          <h5 class="modal-title">Indonesian 173-Hour OT Rule Configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="mb-0">
+            <li>Monthly base hours: <b>173 hours</b></li>
+            <li>First hour → <b>1.5×</b> base hourly rate</li>
+            <li>Next 6 hours (up to 7th hour) → <b>2×</b> base hourly rate</li>
+            <li>8th hour → <b>3×</b> base hourly rate</li>
+            <li>9th hour and beyond → <b>4×</b> base hourly rate</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Calculation Modal -->
+  <div class="modal fade" id="calcModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-teal">
+          <h5 class="modal-title">OT Calculation Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="calcDetails"></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Store fetched employees data
+    let employeesData = [];
+  
+
+    // Format breakdown from API response
+    function formatBreakdown(breakdown) {
+      if (!breakdown || !breakdown.bands) return [];
+      
+      const formatted = [];
+      breakdown.bands.forEach(band => {
+        if (band.hours > 0) {
+          formatted.push(`${band.name}: ${band.hours} hour(s) × ${band.multiplier}× = ${band.amount.toFixed(2)}`);
+        }
+      });
+      return formatted;
+    }
+
+    function renderTable() {
+      const table = document.getElementById('otTable');
+      table.innerHTML = '';
+
+      if (employeesData.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center" style="padding: 40px; color: #999;">
+              <i class="fa-solid fa-inbox" style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
+              <p style="margin: 0;">No overtime records found</p>
+              <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Click the paper plane icon to calculate and send OT for approval</p>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      employeesData.forEach(ot => {
+        // Use data from API response (OTCalculationResponse format)
+        const baseSalary = ot.salary || 0;
+        const otHours = ot.ot_hours || 0;
+        const otSalary = ot.ot_salary || 0;
+        const netSalary = baseSalary + otSalary;
+        const designation = ot.designation || "N/A"; // Adjust based on your API response
+
+        const row = `
+          <tr>
+            <td class="text-start">${ot.emp_id}</td>
+            <td class="text-start">${ot.emp_name}</td>
+            <td class="text-start">${designation}</td>
+            <td class="text-end">${baseSalary.toLocaleString()}</td>
+            <td class="text-end">${otHours}</td>
+            <td class="text-end">${otSalary.toLocaleString()}</td>
+            <td class="text-end"><span class="net-link" onclick="viewCalc('${ot.emp_id}')">${netSalary.toLocaleString()}</span></td>
+            <td class="text-center action-icons">
+              <button
+                type="button"
+                class="btn-send-approval"
+                data-emp-id="${ot.emp_id}"
+                data-emp-name="${ot.emp_name}"
+                style="border:none;background:none;padding:0;cursor:pointer;"
+                title="Send for Approval"
+              >
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </td>
+          </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    function viewCalc(empId) {
+      const ot = employeesData.find(e => e.emp_id === empId);
+      
+      if (!ot) {
+        alert('Employee OT data not found');
+        return;
+      }
+
+      const baseSalary = ot.salary || 0;
+      const otHours = ot.ot_hours || 0;
+      const otSalary = ot.ot_salary || 0;
+      const breakdown = formatBreakdown(ot.breakdown);
+
+      const details = `
+        <h5>${ot.emp_name} (${ot.emp_id})</h5>
+        <p>Base Salary: <b>${baseSalary.toLocaleString()} IDR</b></p>
+        <p>OT Hours: <b>${otHours}</b></p>
+        <p>Hourly Rate: <b>${(ot.hourly_rate || 0).toFixed(2)} IDR</b></p>
+        <hr>
+        <h6>Calculation Breakdown</h6>
+        ${breakdown.length > 0 ? `<ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>` : '<p>No breakdown available</p>'}
+        <p><b>Total OT Salary:</b> ${otSalary.toLocaleString()} IDR</p>
+        <p><b>Net Salary:</b> ${(baseSalary + otSalary).toLocaleString()} IDR</p>
+      `;
+      document.getElementById('calcDetails').innerHTML = details;
+      const modal = new bootstrap.Modal(document.getElementById('calcModal'));
+      modal.show();
+    }
+
+    // Helper: get current period in YYYY-MM format
+    function getCurrentPeriodMonth() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      return `${y}-${m}`;
+    }
+
+    // Call FastAPI backend to calculate + store OT in MySQL
+async function sendForApproval(empId) {
+  const periodMonth = document.getElementById("periodMonth").value;
+
+  if (!periodMonth) {
+    alert("Please select month");
+    return;
+  }
+
+  try {
+    // 1️⃣ Calculate OT
+    const calcRes = await fetch(
+      "http://127.0.0.1:8000/api/ot_base_calculation/calculate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emp_id: empId,
+          period_month: periodMonth
+        })
+      }
+    );
+
+    if (!calcRes.ok) {
+      const err = await calcRes.json();
+      alert(err.detail || "OT calculation failed");
+      return;
+    }
+
+    // 2️⃣ Sync approval
+    await fetch(
+      "http://127.0.0.1:8000/api/ot_configuration_approval/sync",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emp_id: empId,
+          period_month: periodMonth
+        })
+      }
+    );
+
+    // 3️⃣ Send for approval  ✅ MAIN ACTION
+    const sendRes = await fetch(
+      `http://127.0.0.1:8000/api/ot_configuration_approval/${empId}/send`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emp_id: empId,
+          period_month: periodMonth
+        })
+      }
+    );
+
+    if (!sendRes.ok) {
+      alert("Send for approval failed");
+      return;
+    }
+
+
+
+  } catch (err) {
+    console.error(err);
+    alert("Error sending for approval");
+  }
+}
+
+
+
+    // Add event listeners for send approval buttons after rendering
+    function attachApprovalListeners() {
+      document.querySelectorAll('.btn-send-approval').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const empId = this.getAttribute('data-emp-id');
+          const name = this.getAttribute('data-emp-name');
+
+          // We only need empId (and name for message); backend uses DB to compute OT
+          sendForApproval(empId);
+        });
+      });
+    }
+    // ... (existing code)
+
+function getPeriodFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("period");
+}
+
+async function loadOT() {
+  const period = document.getElementById("periodMonth").value;
+
+  if (!period) {
+    alert("Please select month");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/ot_base_calculation/?period=${period}`
+    );
+
+    const data = await res.json();
+
+    console.log("Filtered OT DATA:", data);
+
+    employeesData = data;   
+    renderTable();          
+    attachApprovalListeners();
+  } catch (err) {
+    console.error("Error loading OT data:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const now = new Date().toISOString().slice(0, 7); 
+  document.getElementById("periodMonth").value = now;
+  loadOT();
+});
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<div class="dashboard-container container mt-5">
+
+ 
+
+
+</div>
+
+<style>
+.dashboard-container {
+  max-width: 900px;
+  padding-bottom: 40px;
+}
+
+/* Compact square cards */
+.action-card {
+  cursor: pointer;
+  width: 220px;
+  height: 220px;
+  border-radius: 18px;
+  border: 2px solid #009688;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.action-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0, 150, 136, 0.25);
+}
+
+/* Background gradients */
+.clock-in {
+  background: linear-gradient(145deg, #e8fdf3, #c8f7dc);
+}
+.clock-out {
+  background: linear-gradient(145deg, #fff0f0, #ffdada);
+}
+
+/* Icon size */
+.action-img {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+.action-card:hover .action-img {
+  transform: scale(1.1);
+}
+
+/* Toast alert */
+.alert-custom {
+  background-color: #e3f2fd;
+  border: 1px solid #007BFF;
+  color: #004C80;
+}
+</style>
+
+<script>
+function showMessage(type, lat, lon) {
+  const now = new Date();
+  const timeStr = now.toLocaleString('en-IN', { hour12: true });
+  const message = `${type} recorded on ${timeStr}<br>📍 Location: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+  const alertBox = document.createElement('div');
+  alertBox.className = `alert alert-custom position-fixed top-0 end-0 m-3 shadow-lg rounded-3 p-3`;
+  alertBox.innerHTML = message;
+  alertBox.style.zIndex = '9999';
+  document.body.appendChild(alertBox);
+
+  setTimeout(() => alertBox.remove(), 6000);
+}
+
+function getLocationAndShow(type) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => showMessage(type, pos.coords.latitude, pos.coords.longitude),
+      () => alert("Unable to retrieve location.")
+    );
+  } else {
+    alert("Geolocation not supported by this browser.");
+  }
+}
+
+function clockIn() {
+  getLocationAndShow("✅ Clock In");
+}
+
+function clockOut() {
+  getLocationAndShow("⏰ Clock Out");
+}
+</script>

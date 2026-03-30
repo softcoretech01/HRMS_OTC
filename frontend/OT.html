@@ -193,6 +193,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
   <script>
     // Store fetched employees data
     let employeesData = [];
@@ -310,7 +311,7 @@ async function sendForApproval(empId) {
   try {
     // 1️⃣ Calculate OT
     const calcRes = await fetch(
-      "http://127.0.0.1:8000/api/ot_base_calculation/calculate",
+      CONFIG.API_BASE_URL + "/api/ot_base_calculation/calculate",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -329,7 +330,7 @@ async function sendForApproval(empId) {
 
     // 2️⃣ Sync approval
     await fetch(
-      "http://127.0.0.1:8000/api/ot_configuration_approval/sync",
+      CONFIG.API_BASE_URL + "/api/ot_configuration_approval/sync",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -342,7 +343,7 @@ async function sendForApproval(empId) {
 
     // 3️⃣ Send for approval  ✅ MAIN ACTION
     const sendRes = await fetch(
-      `http://127.0.0.1:8000/api/ot_configuration_approval/${empId}/send`,
+      CONFIG.API_BASE_URL + `/api/ot_configuration_approval/${empId}/send`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -397,7 +398,7 @@ async function loadOT() {
 
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/api/ot_base_calculation/?period=${period}`
+      CONFIG.API_BASE_URL + `/api/ot_base_calculation/?period=${period}`
     );
 
     const data = await res.json();
